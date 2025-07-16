@@ -27,6 +27,14 @@ FileEncryptor::FileEncryptor(QWidget *parent) : QMainWindow(parent) {
     passwordsFile.setFileName("passwords.txt");
 }
 
+QString FileEncryptor::hashPassword(const QString &password) {
+    QByteArray hash = QCryptographicHash::hash(
+        password.toUtf8(),
+        QCryptographicHash::Sha256
+        );
+    return QString(hash.toHex());
+}
+
 void FileEncryptor::encryptFile() {
     QString filePath = QFileDialog::getOpenFileName(this, "Выберите файл для шифрования");
     if (filePath.isEmpty()) return;
@@ -68,7 +76,7 @@ void FileEncryptor::encryptFile() {
     }
 
     QTextStream out(&passwordsFile);
-    out << outputPath << ":" << password << "\n";
+    out << outputPath << ":" << hashPassword(password) << "\n";
     passwordsFile.close();
 
     QMessageBox::information(this, "Успех", "Зашифрованный файл создан");
@@ -94,7 +102,7 @@ void FileEncryptor::decryptFile() {
                 QString savedFilePath = line.left(lastColonPos);
                 QString savedPassword = line.mid(lastColonPos + 1);
 
-                if (savedFilePath == filePath && savedPassword == password) {
+                if (savedFilePath == filePath && savedPassword == hashPassword(password)) {
                     passwordCorrect = true;
                     break;
                 }

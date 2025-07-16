@@ -19,6 +19,7 @@ private:
     QPushButton *encryptButton;
     QPushButton *decryptButton;
     QFile passwordsFile;
+    QString hashPassword(const QString &password);
 };
 
 #endif // FILEENCRYPTOR_H
